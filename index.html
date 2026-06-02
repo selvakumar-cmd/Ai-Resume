@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Resume Analyzer — Smart Career Intelligence</title>
+  <meta name="description" content="Analyze your resume with AI. Get ATS score, skills gap analysis, job matching, and personalized improvement suggestions instantly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" fill="url(#hexGrad)"/>
+          <path d="M9 14H19M14 9V19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="hexGrad" x1="2" y1="2" x2="26" y2="26">
+              <stop offset="0%" stop-color="#6366f1"/>
+              <stop offset="100%" stop-color="#8b5cf6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="brand-name">ResumeAI</span>
+    </div>
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#analyzer" class="nav-link">Analyze</a>
+      <a href="#how-it-works" class="nav-link">How It Works</a>
+    </div>
+    <button class="btn-primary nav-cta" onclick="scrollToAnalyzer()">Get Started Free</button>
+  </nav>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>AI-Powered Resume Intelligence</span>
+      </div>
+      <h1 class="hero-title">
+        Supercharge Your Career<br/>
+        with <span class="gradient-text">AI Analysis</span>
+      </h1>
+      <p class="hero-desc">
+        Upload your resume and get instant insights — ATS score, skills analysis,
+        job matching, and personalized recommendations powered by advanced AI.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary btn-lg" onclick="scrollToAnalyzer()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+          Analyze My Resume
+        </button>
+        <button class="btn-ghost btn-lg" onclick="showDemo()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="10 8 16 12 10 16 10 8"/>
+          </svg>
+          Watch Demo
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-value">98%</span>
+          <span class="stat-label">ATS Accuracy</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value">50K+</span>
+          <span class="stat-label">Resumes Analyzed</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value">3x</span>
+          <span class="stat-label">Higher Callbacks</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="floating-card card-1">
+        <div class="fc-icon">✅</div>
+        <div class="fc-text">
+          <strong>ATS Score</strong>
+          <span>87 / 100</span>
+        </div>
+      </div>
+      <div class="floating-card card-2">
+        <div class="fc-icon">🎯</div>
+        <div class="fc-text">
+          <strong>Skills Match</strong>
+          <span>92%</span>
+        </div>
+      </div>
+      <div class="floating-card card-3">
+        <div class="fc-icon">💡</div>
+        <div class="fc-text">
+          <strong>Improvements</strong>
+          <span>5 Found</span>
+        </div>
+      </div>
+      <div class="resume-mockup">
+        <div class="rm-header">
+          <div class="rm-avatar"></div>
+          <div class="rm-lines">
+            <div class="rm-line long"></div>
+            <div class="rm-line medium"></div>
+          </div>
+        </div>
+        <div class="rm-body">
+          <div class="rm-section">
+            <div class="rm-title-line"></div>
+            <div class="rm-line long"></div>
+            <div class="rm-line medium"></div>
+            <div class="rm-line short"></div>
+          </div>
+          <div class="rm-section">
+            <div class="rm-title-line"></div>
+            <div class="rm-line long"></div>
+            <div class="rm-line long"></div>
+            <div class="rm-line medium"></div>
+          </div>
+          <div class="rm-chips">
+            <div class="rm-chip"></div>
+            <div class="rm-chip"></div>
+            <div class="rm-chip"></div>
+            <div class="rm-chip"></div>
+          </div>
+        </div>
+        <div class="scan-line"></div>
+        <div class="scan-glow"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <div class="section-badge">Features</div>
+      <h2 class="section-title">Everything You Need to Land Your Dream Job</h2>
+      <p class="section-desc">Our AI analyzes every aspect of your resume to give you a competitive edge</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" data-delay="0">
+        <div class="feature-icon" style="--icon-color: #6366f1;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+          </svg>
+        </div>
+        <h3>ATS Score Analysis</h3>
+        <p>Get a precise ATS compatibility score with detailed breakdown of what's passing and what needs improvement.</p>
+      </div>
+      <div class="feature-card" data-delay="100">
+        <div class="feature-icon" style="--icon-color: #8b5cf6;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <h3>Skills Extraction</h3>
+        <p>Automatically identify and categorize technical skills, soft skills, and certifications from your resume.</p>
+      </div>
+      <div class="feature-card" data-delay="200">
+        <div class="feature-icon" style="--icon-color: #ec4899;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+        </div>
+        <h3>Job Match Analysis</h3>
+        <p>Paste any job description and instantly see how well your resume matches the requirements.</p>
+      </div>
+      <div class="feature-card" data-delay="300">
+        <div class="feature-icon" style="--icon-color: #f59e0b;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <h3>Smart Recommendations</h3>
+        <p>Get personalized, actionable suggestions to improve your resume and increase interview chances.</p>
+      </div>
+      <div class="feature-card" data-delay="400">
+        <div class="feature-icon" style="--icon-color: #10b981;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </div>
+        <h3>Impact Metrics</h3>
+        <p>Analyze the quantifiable impact statements in your resume and suggest stronger, data-driven alternatives.</p>
+      </div>
+      <div class="feature-card" data-delay="500">
+        <div class="feature-icon" style="--icon-color: #06b6d4;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+        <h3>Keyword Optimization</h3>
+        <p>Discover missing industry keywords and power words that will make your resume stand out to recruiters.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ANALYZER SECTION ===== -->
+  <section class="analyzer-section" id="analyzer">
+    <div class="section-header">
+      <div class="section-badge">Analyzer</div>
+      <h2 class="section-title">Analyze Your Resume Now</h2>
+      <p class="section-desc">100% Secure &amp; Offline — Full Applicant Tracking System (ATS) optimization audit</p>
+    </div>
+
+    <div class="analyzer-wrapper">
+      <!-- Input Panel -->
+      <div class="input-panel" id="inputPanel">
+        <div class="tabs">
+          <button class="tab active" id="tabUpload" onclick="switchTab('upload')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+            </svg>
+            Upload Resume
+          </button>
+          <button class="tab" id="tabPaste" onclick="switchTab('paste')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+            Paste Text
+          </button>
+        </div>
+
+        <!-- Upload Tab -->
+        <div class="tab-content" id="uploadContent">
+          <div class="drop-zone" id="dropZone"
+               ondragover="handleDragOver(event)"
+               ondragleave="handleDragLeave(event)"
+               ondrop="handleDrop(event)"
+               onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept=".pdf,.txt,.doc,.docx" hidden onchange="handleFileSelect(event)" />
+            <div class="drop-zone-inner">
+              <div class="dz-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="12" y1="18" x2="12" y2="12"/>
+                  <line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
+              </div>
+              <p class="dz-title">Drop your resume here</p>
+              <p class="dz-subtitle">or click to browse — PDF, TXT, DOC supported</p>
+              <div class="dz-file-info" id="dzFileInfo" style="display:none;">
+                <span class="file-icon">📄</span>
+                <span id="dzFileName"></span>
+                <button class="remove-file" onclick="removeFile(event)">✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paste Tab -->
+        <div class="tab-content" id="pasteContent" style="display:none;">
+          <textarea id="resumeText" class="text-input" placeholder="Paste your resume text here...&#10;&#10;Include your name, contact info, work experience, education, skills, etc."></textarea>
+        </div>
+
+        <!-- Industry Selector (MNC Feature) -->
+        <div style="margin-bottom: 1.25rem;">
+          <label class="input-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+            </svg>
+            Industry (Optional) <span class="optional-badge">For benchmark comparison</span>
+          </label>
+          <select id="industrySelect" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-primary); font-size: 0.9rem; font-family: 'Inter', sans-serif; cursor: pointer; transition: var(--transition);">
+            <option value="tech">Tech / Software</option>
+            <option value="finance">Finance / Banking</option>
+            <option value="healthcare">Healthcare / Medical</option>
+            <option value="consulting">Consulting</option>
+            <option value="default">General (Other)</option>
+          </select>
+        </div>
+
+        <!-- Job Description -->
+        <div class="jd-section">
+          <div class="jd-header">
+            <label class="input-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+              </svg>
+              Job Description <span class="optional-badge">Optional</span>
+            </label>
+            <button class="btn-text" onclick="toggleJD()">
+              <span id="jdToggleText">Add Job Description</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="jdChevron">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+          <div id="jdContent" style="display:none;">
+            <textarea id="jobDescription" class="text-input jd-input" placeholder="Paste the job description here for a targeted match analysis...&#10;&#10;Include requirements, responsibilities, and desired qualifications."></textarea>
+          </div>
+        </div>
+
+        <button class="btn-primary btn-analyze" id="analyzeBtn" onclick="analyzeResume()">
+          <span id="analyzeBtnText">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <span id="btnLabel">Analyze Resume ⚙️</span>
+          </span>
+          <span id="analyzingText" style="display:none;">
+            <span class="spinner"></span>
+            <span id="analyzingLabel">Analyzing details...</span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="results-panel" id="resultsPanel" style="display:none;">
+        <div class="results-header">
+          <h3>Analysis Results <span class="ai-tag" id="aiPoweredTag"></span></h3>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <div class="tooltip">
+              <button class="btn-export-premium" onclick="exportResumeAsText()" title="Download clean ATS-friendly resume">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 17l4 4 4-4M12 12v9M20 9H4v10a2 2 0 002 2h12a2 2 0 002-2V9z"/>
+                </svg>
+                Export Text
+              </button>
+              <span class="tooltip-text">Download as plain text</span>
+            </div>
+            <div class="tooltip">
+              <button class="btn-export-premium" onclick="exportResumeAsKeywords()" title="Download skills and keywords report">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                Keywords
+              </button>
+              <span class="tooltip-text">Download keywords report</span>
+            </div>
+            <div class="tooltip">
+              <button class="btn-ghost btn-sm" onclick="resetAnalyzer()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+                </svg>
+                New
+              </button>
+              <span class="tooltip-text">Start over</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Tabs Selector -->
+        <div class="tabs" style="margin-bottom: 1.5rem; padding: 0.25rem;">
+          <button class="tab active" id="tabReport" onclick="switchResultTab('report')">
+            📊 Scan Report
+          </button>
+          <button class="tab" id="tabEnhancer" onclick="switchResultTab('enhancer')">
+            ✏️ AI Enhancer
+          </button>
+          <button class="tab" id="tabCoverLetter" onclick="switchResultTab('coverLetter')">
+            ✉️ Cover Letter
+          </button>
+        </div>
+
+        <!-- Report Tab Content -->
+        <div id="reportTabContent" class="result-tab-content">
+          <!-- Score Cards -->
+          <div class="score-cards">
+            <div class="score-card primary-score">
+              <div class="score-ring" id="atsScoreRing">
+                <svg viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="50" class="ring-bg"/>
+                  <circle cx="60" cy="60" r="50" class="ring-fill" id="atsRingFill"/>
+                </svg>
+                <div class="score-center">
+                  <span class="score-num" id="atsScoreNum">0</span>
+                  <span class="score-label">ATS Score</span>
+                </div>
+              </div>
+              <div class="score-grade" id="atsGrade">—</div>
+            </div>
+            <div class="mini-scores">
+              <div class="mini-score" id="skillsCard">
+                <div class="ms-header">
+                  <span class="ms-label">Skills</span>
+                  <span class="ms-value" id="skillsScore">—</span>
+                </div>
+                <div class="ms-bar"><div class="ms-fill" id="skillsFill"></div></div>
+              </div>
+              <div class="mini-score" id="formatCard">
+                <div class="ms-header">
+                  <span class="ms-label">Format</span>
+                  <span class="ms-value" id="formatScore">—</span>
+                </div>
+                <div class="ms-bar"><div class="ms-fill" id="formatFill"></div></div>
+              </div>
+              <div class="mini-score" id="impactCard">
+                <div class="ms-header">
+                  <span class="ms-label">Impact</span>
+                  <span class="ms-value" id="impactScore">—</span>
+                </div>
+                <div class="ms-bar"><div class="ms-fill" id="impactFill"></div></div>
+              </div>
+              <div class="mini-score" id="keywordsCard">
+                <div class="ms-header">
+                  <span class="ms-label">Keywords</span>
+                  <span class="ms-value" id="keywordsScore">—</span>
+                </div>
+                <div class="ms-bar"><div class="ms-fill" id="keywordsFill"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job Match -->
+          <div class="result-section" id="jobMatchSection" style="display:none;">
+            <div class="rs-header">
+              <h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                </svg>
+                Job Match Analysis
+              </h4>
+              <div class="match-badge" id="matchBadge">—%</div>
+            </div>
+            <div class="match-details" id="matchDetails"></div>
+          </div>
+
+          <!-- Skills Found -->
+          <div class="result-section">
+            <div class="rs-header">
+              <h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                Skills Detected
+              </h4>
+            </div>
+            <div class="skills-categories" id="skillsCategories"></div>
+          </div>
+
+          <!-- Recommendations -->
+          <div class="result-section">
+            <div class="rs-header">
+              <h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                ATS Recommendations
+              </h4>
+            </div>
+            <div class="recommendations" id="recommendations"></div>
+          </div>
+
+          <!-- Keywords -->
+          <div class="result-section">
+            <div class="rs-header">
+              <h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+                Keyword Analysis
+              </h4>
+            </div>
+            <div class="keyword-analysis" id="keywordAnalysis"></div>
+          </div>
+
+          <!-- Export -->
+          <button class="btn-primary btn-export" onclick="exportReport()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            </svg>
+            Download Full Report
+          </button>
+        </div>
+
+        <!-- Enhancer Tab Content -->
+        <div id="enhancerTabContent" class="result-tab-content" style="display:none;">
+          <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.55;">
+            Modify your resume text below and use the offline helpers on the right to auto-fix and improve. You can also re-analyze your edits immediately.
+          </div>
+          <div class="enhancer-grid">
+            <div class="editor-side">
+              <div class="editor-header">
+                <span>Resume Text Editor</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Factual edits preserved</span>
+              </div>
+              <textarea id="enhancerTextEditor" class="text-input" style="height: 380px; font-family: monospace; font-size: 0.8rem; line-height: 1.5;" placeholder="Resume text goes here..."></textarea>
+            </div>
+            <div class="tools-side">
+              <div style="font-size: 0.72rem; font-weight:700; color:#a5b4fc; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;">Enhancement Helpers</div>
+              
+              <div class="tool-btn-card" onclick="triggerEnhance('verbs')">
+                <div class="tool-btn-icon">⚡</div>
+                <div class="tool-btn-info">
+                  <strong>Upgrade Action Verbs</strong>
+                  <span>Replace weak, passive phrasings with punchy leadership verbs.</span>
+                </div>
+              </div>
+              
+              <div class="tool-btn-card" onclick="triggerEnhance('metrics')">
+                <div class="tool-btn-icon">📊</div>
+                <div class="tool-btn-info">
+                  <strong>Quantify Achievements</strong>
+                  <span>Inject metrics, statistics, and business scale parameters.</span>
+                </div>
+              </div>
+              
+              <div class="tool-btn-card" onclick="triggerEnhance('format')">
+                <div class="tool-btn-icon">📋</div>
+                <div class="tool-btn-info">
+                  <strong>Optimize Delineation</strong>
+                  <span>Improve layout section markers and bullet point indentation.</span>
+                </div>
+              </div>
+              
+              <button class="btn-primary" style="width: 100%; border-radius: var(--radius-sm); padding: 0.75rem; margin-top: 1rem; justify-content: center; font-size: 0.85rem;" onclick="reAnalyzeFromEditor()" id="reanalyzeBtn">
+                🔄 Run Analysis on Edited Text
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cover Letter Tab Content -->
+        <div id="coverLetterTabContent" class="result-tab-content" style="display:none;">
+          <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.55;">
+            Tailor a customized cover letter mapped directly to your current resume achievements and job specifications.
+          </div>
+          
+          <div style="display:flex; gap: 1rem; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap;">
+            <label style="font-size: 0.85rem; font-weight:600; color: var(--text-secondary);">Select Letter Tone:</label>
+            <div class="engine-select-wrapper">
+              <select id="coverLetterTone" class="engine-select" style="padding-top: 0.3rem; padding-bottom: 0.3rem;">
+                <option value="professional">Standard Professional</option>
+                <option value="tech">Modern Tech & Engineering</option>
+                <option value="enthusiastic">Enthusiastic & Passionate</option>
+                <option value="creative">Polished Storyteller</option>
+              </select>
+            </div>
+            <button class="btn-primary" style="border-radius: 50px; font-size: 0.8rem; padding: 0.5rem 1.25rem;" id="generateLetterBtn" onclick="generateCoverLetter()">
+              ✨ Generate Tailored Letter
+            </button>
+          </div>
+          
+          <div id="coverLetterLoading" style="display: none; padding: 3rem 0; text-align: center;">
+            <div class="spinner" style="margin-bottom: 0.5rem;"></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Tailoring cover letter using offline templates...</div>
+          </div>
+          
+          <div id="coverLetterResultArea" style="display: none;">
+            <div class="editor-header">
+              <span>Generated Tailored Cover Letter</span>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn-text" style="font-size: 0.72rem; padding: 0.15rem 0.4rem;" onclick="copyCoverLetter()">Copy</button>
+                <button class="btn-text" style="font-size: 0.72rem; padding: 0.15rem 0.4rem;" onclick="downloadCoverLetter()">Save as PDF</button>
+              </div>
+            </div>
+            <textarea id="coverLetterTextEditor" class="text-input" style="height: 350px; font-family: sans-serif; font-size: 0.85rem; line-height: 1.6;" placeholder="Your cover letter will show here..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="section-header">
+      <div class="section-badge">Process</div>
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-desc">Three simple steps to transform your resume</p>
+    </div>
+    <div class="steps-container">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <div class="step-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+            </svg>
+          </div>
+          <h3>Upload Resume</h3>
+          <p>Drop your PDF or paste your resume text. Our system supports all major formats.</p>
+        </div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <div class="step-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+            </svg>
+          </div>
+          <h3>ATS Scan</h3>
+          <p>Our offline engine scans for 500+ signals including keywords, format, impact, and more.</p>
+        </div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <div class="step-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h3>Get Insights</h3>
+          <p>Receive your detailed report with scores, gaps, and actionable recommendations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="nav-brand">
+          <div class="brand-icon small">
+            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+              <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" fill="url(#hexGrad2)"/>
+              <path d="M9 14H19M14 9V19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="hexGrad2" x1="2" y1="2" x2="26" y2="26">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="brand-name">ResumeAI</span>
+        </div>
+        <p>AI-powered resume intelligence to help you land your dream job.</p>
+      </div>
+      <p class="footer-copy">© 2026 ResumeAI. Built with ❤️ using AI intelligence.</p>
+    </div>
+  </footer>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="html2pdf.bundle.min.js"></script>
+  <script src="analyzer.js"></script>
+  <script src="ats-enhanced.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
