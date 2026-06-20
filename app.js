@@ -217,6 +217,9 @@ async function analyzeResume() {
     return;
   }
 
+  // Snapshot original resume text for comparison tool
+  originalResumeSnapshot = resumeText;
+
   const jobDescription = document.getElementById('jobDescription').value.trim();
   const industry = document.getElementById('industrySelect')?.value || 'tech';
 
@@ -227,10 +230,8 @@ async function analyzeResume() {
     await sleep(300);
     updateThinkingStep(0, 'active');
 
-    // Use enhanced analyzer with industry context
-    const result = window.EnhancedATSAnalyzer 
-      ? window.EnhancedATSAnalyzer.analyze(resumeText, jobDescription, industry)
-      : window.GeminiAnalyzer.analyze(resumeText, jobDescription);
+    // Use offline rule-based analyzer with industry context
+    const result = window.GeminiAnalyzer.analyze(resumeText, jobDescription, industry);
 
     updateThinkingStep(0, 'done');
     updateThinkingStep(1, 'active');
@@ -370,12 +371,26 @@ function showResults(results) {
     if (warningEl) warningEl.remove();
   }
 
+  // ===== NEW: Render Deep Analysis sections =====
+  setTimeout(() => {
+    if (results.salary)         renderSalary(results.salary);
+    if (results.lengthData)     renderLength(results.lengthData);
+    if (results.grammar)        renderGrammar(results.grammar);
+    if (results.readability)    renderReadability(results.readability);
+    if (results.bulletAnalysis) renderBullets(results.bulletAnalysis);
+    if (results.duplicates)     renderDuplicates(results.duplicates);
+    if (results.roleMatches)    renderRoleMatches(results.roleMatches);
+    if (results.linkedInGaps)   renderLinkedIn(results.linkedInGaps);
+  }, 500);
+
+  // ===== Save to score history =====
+  saveScoreHistory(results);
+
   // Smooth scroll to results with delay
   setTimeout(() => resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
-  
-  // Add success feedback
   showToast('✅ Analysis Complete! Check results below', 'success');
 }
+
 
 // ===== RENDER SCORES =====
 function renderScores(results) {
@@ -1088,28 +1103,32 @@ document.addEventListener('keydown', (e) => {
 
 // ===== RESULTS TAB CONTROLLER =====
 function switchResultTab(tabName) {
-  const tabs = document.querySelectorAll('#resultsPanel > .tabs > .tab');
-  const contents = document.querySelectorAll('.result-tab-content');
+  document.querySelectorAll('.result-tabs-wrap .tab, #resultsPanel .tabs .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.result-tab-content').forEach(c => c.style.display = 'none');
 
-  tabs.forEach(t => t.classList.remove('active'));
-  contents.forEach(c => c.style.display = 'none');
+  const tabMap = {
+    'report':       ['tabReport',       'reportTabContent'],
+    'deepAnalysis': ['tabDeepAnalysis', 'deepAnalysisTabContent'],
+    'enhancer':     ['tabEnhancer',     'enhancerTabContent'],
+    'coverLetter':  ['tabCoverLetter',  'coverLetterTabContent'],
+    'tools':        ['tabTools',        'toolsTabContent'],
+    'linkedin':     ['tabLinkedIn',     'linkedinTabContent'],
+    'history':      ['tabHistory',      'historyTabContent']
+  };
 
-  if (tabName === 'report') {
-    document.getElementById('tabReport').classList.add('active');
-    document.getElementById('reportTabContent').style.display = 'block';
-  } else if (tabName === 'enhancer') {
-    document.getElementById('tabEnhancer').classList.add('active');
-    document.getElementById('enhancerTabContent').style.display = 'block';
+  const [tabId, contentId] = tabMap[tabName] || tabMap['report'];
+  const tabEl = document.getElementById(tabId);
+  const contentEl = document.getElementById(contentId);
+  if (tabEl) tabEl.classList.add('active');
+  if (contentEl) contentEl.style.display = 'block';
 
+  if (tabName === 'enhancer') {
     const editor = document.getElementById('enhancerTextEditor');
-    if (!editor.value) {
-      editor.value = currentText || document.getElementById('resumeText').value.trim();
-    }
-  } else if (tabName === 'coverLetter') {
-    document.getElementById('tabCoverLetter').classList.add('active');
-    document.getElementById('coverLetterTabContent').style.display = 'block';
+    if (!editor.value) editor.value = currentText || document.getElementById('resumeText').value.trim();
   }
+  if (tabName === 'history') renderScoreHistory();
 }
+
 
 // ===== AI ENHANCER ACTION =====
 async function triggerEnhance(type) {
@@ -1360,3 +1379,396 @@ function exportResumeAsKeywords() {
   
   showToast('📋 Keywords report exported!', 'success');
 }
+
+// ============================================================
+// ===== NEW FEATURE RENDER FUNCTIONS =====
+// ============================================================
+
+// ----- SALARY -----
+function renderSalary(salary) {
+  const rangeEl = document.getElementById('salaryRange');
+  const metaEl = document.getElementById('salaryMeta');
+  const tierEl = document.getElementById('salaryTier');
+  if (rangeEl) rangeEl.textContent = salary.range;
+  if (metaEl) metaEl.textContent = salary.tip;
+  if (tierEl) tierEl.textContent = '🎯 ' + salary.tier;
+}
+
+// ----- RESUME LENGTH -----
+function renderLength(lengthData) {
+  const el = document.getElementById('lengthAnalysis');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="length-stat">
+      <div class="length-stat-item">
+        <div class="length-stat-num">${lengthData.words.toLocaleString()}</div>
+        <div class="length-stat-label">Words</div>
+      </div>
+      <div class="length-stat-item">
+        <div class="length-stat-num">~${lengthData.estimatedPages}</div>
+        <div class="length-stat-label">Pages</div>
+      </div>
+      <div class="length-stat-item">
+        <div class="length-stat-num">${lengthData.lengthScore}%</div>
+        <div class="length-stat-label">Length Score</div>
+      </div>
+    </div>
+    <div class="length-rec">${lengthData.recommendation}</div>
+  `;
+}
+
+// ----- GRAMMAR -----
+function renderGrammar(grammarData) {
+  const el = document.getElementById('grammarIssues');
+  const badge = document.getElementById('grammarScoreBadge');
+  if (!el) return;
+
+  const score = grammarData.grammarScore;
+  if (badge) {
+    badge.textContent = score + '%';
+    badge.className = 'badge-score' + (score >= 80 ? '' : score >= 60 ? ' warn' : ' danger');
+  }
+
+  if (grammarData.issues.length === 0) {
+    el.innerHTML = `<div style="color:var(--success);font-size:0.85rem;padding:0.5rem;">✅ No major grammar or style issues detected. Great job!</div>`;
+    return;
+  }
+
+  el.innerHTML = grammarData.issues.slice(0, 12).map(issue => `
+    <div class="grammar-issue ${issue.type}">
+      <span class="gi-icon">${issue.type === 'error' ? '🔴' : issue.type === 'warning' ? '🟡' : 'ℹ️'}</span>
+      <div>
+        <div>${issue.text}</div>
+        ${issue.example ? `<div class="grammar-example">Found: "${issue.example}"</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ----- READABILITY -----
+function renderReadability(readabilityData) {
+  const el = document.getElementById('readabilityDetails');
+  const badge = document.getElementById('readabilityBadge');
+  if (!el) return;
+
+  const score = readabilityData.readabilityScore;
+  if (badge) {
+    badge.textContent = readabilityData.readabilityLabel;
+    badge.className = 'badge-score' + (score >= 70 ? '' : score >= 50 ? ' warn' : ' danger');
+  }
+
+  el.innerHTML = `
+    <div class="readability-bar-wrap">
+      <div class="readability-label-row">
+        <span>Readability</span>
+        <span>${readabilityData.readabilityLabel}</span>
+      </div>
+      <div class="readability-bar">
+        <div class="readability-fill" style="width: 0%" id="readFill"></div>
+      </div>
+    </div>
+    <p style="font-size:0.83rem;color:var(--text-secondary);line-height:1.6;">${readabilityData.readabilityTip}</p>
+    <div class="readability-stats">
+      <div class="readability-stat"><strong>${readabilityData.fleschScore}</strong><br>Flesch Score</div>
+      <div class="readability-stat"><strong>${readabilityData.avgWordsPerSentence}</strong><br>Avg Words/Sentence</div>
+      <div class="readability-stat"><strong>${readabilityData.avgSyllablesPerWord}</strong><br>Avg Syllables/Word</div>
+    </div>
+  `;
+  setTimeout(() => {
+    const fill = document.getElementById('readFill');
+    if (fill) fill.style.width = score + '%';
+  }, 200);
+}
+
+// ----- BULLET QUALITY -----
+function renderBullets(bulletData) {
+  const el = document.getElementById('bulletAnalysis');
+  const badge = document.getElementById('bulletScoreBadge');
+  if (!el) return;
+
+  if (badge) {
+    badge.textContent = bulletData.bulletScore + '% strong';
+    badge.className = 'badge-score' + (bulletData.bulletScore >= 60 ? '' : bulletData.bulletScore >= 40 ? ' warn' : ' danger');
+  }
+
+  const summary = `<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.75rem;">
+    Analyzed <strong>${bulletData.total}</strong> bullet points — 
+    <span style="color:var(--success);">${bulletData.strongCount} strong ✅</span> · 
+    <span style="color:var(--danger);">${bulletData.weakCount} need work ⚠️</span>
+  </div>`;
+
+  const bullets = bulletData.bullets.map(b => `
+    <div class="bullet-item ${b.quality}">
+      <span class="bullet-icon">${b.quality === 'strong' ? '💪' : b.quality === 'weak' ? '⚠️' : '📝'}</span>
+      <div class="bullet-text">
+        <div>${b.text}</div>
+        <div class="bullet-tags">
+          ${b.hasActionVerb ? '<span class="btag verb">✓ Action Verb</span>' : '<span class="btag tip">✗ Add action verb</span>'}
+          ${b.hasMetric ? '<span class="btag metric">✓ Has Metric</span>' : '<span class="btag tip">✗ Add metric</span>'}
+          ${b.tips.filter(t => t !== 'Start with an action verb' && t !== 'Add a metric or number').map(t => `<span class="btag tip">${t}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  el.innerHTML = summary + bullets;
+}
+
+// ----- DUPLICATE WORDS -----
+function renderDuplicates(duplicates) {
+  const el = document.getElementById('duplicateWords');
+  if (!el) return;
+
+  if (!duplicates || duplicates.length === 0) {
+    el.innerHTML = `<div style="color:var(--success);font-size:0.85rem;padding:0.5rem;">✅ No significantly overused words detected. Good vocabulary diversity!</div>`;
+    return;
+  }
+
+  const maxCount = duplicates[0]?.count || 10;
+  el.innerHTML = `
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.75rem;">Words appearing 4+ times. Consider replacing some with synonyms for variety.</p>
+    ${duplicates.map(d => `
+      <div class="dup-word-row">
+        <span class="dup-word">${d.word}</span>
+        <div class="dup-bar-wrap">
+          <div class="dup-bar"><div class="dup-fill" style="width:${Math.min(100, (d.count / maxCount) * 100)}%"></div></div>
+        </div>
+        <span class="dup-count">used ${d.count}x</span>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ----- JOB ROLE MATCHES -----
+function renderRoleMatches(roleMatches) {
+  const el = document.getElementById('roleMatches');
+  if (!el) return;
+
+  el.innerHTML = `
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.75rem;">Based on your skills and experience, these roles best match your profile:</p>
+    <div class="role-match-grid">
+      ${roleMatches.slice(0, 5).map((role, i) => `
+        <div class="role-match-item">
+          <span style="font-size:1rem;">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🏷️'}</span>
+          <span class="role-name">${role.title}</span>
+          <div class="role-score-bar"><div class="role-score-fill" style="width:${role.score}%"></div></div>
+          <span class="role-pct">${role.score}%</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ----- LINKEDIN CHECKLIST -----
+function renderLinkedIn(gaps) {
+  const el = document.getElementById('linkedInChecklist');
+  if (!el || !gaps) return;
+
+  const detected = gaps.filter(g => g.detected).length;
+  const total = gaps.length;
+
+  el.innerHTML = `
+    <div style="font-size:0.82rem;margin-bottom:0.75rem;">
+      <span style="color:var(--success);font-weight:600;">${detected}</span> / ${total} profile elements found in your resume. 
+      <span style="color:var(--text-muted);">Items marked ⚠️ should be added to your LinkedIn profile.</span>
+    </div>
+    ${gaps.map(item => `
+      <div class="li-check-item ${item.detected ? 'detected' : 'missing'}">
+        <span class="li-check-icon">${item.detected ? '✅' : '⚠️'}</span>
+        <div>
+          <div class="li-check-label">${item.label}</div>
+          <div class="li-check-tip">${item.tip}</div>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ----- SCORE HISTORY -----
+const HISTORY_KEY = 'resumeai_score_history';
+
+function saveScoreHistory(results) {
+  try {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      score: results.atsScore,
+      grade: results.overallGrade,
+      skills: results.skillsScore,
+      format: results.formatScore,
+      impact: results.impactScore,
+      date: new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      industry: results.detectedIndustry || 'general'
+    });
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 10)));
+  } catch (e) { /* localStorage unavailable */ }
+}
+
+function renderScoreHistory() {
+  const el = document.getElementById('scoreHistory');
+  if (!el) return;
+  try {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    if (history.length === 0) {
+      el.innerHTML = `<p style="color:var(--text-muted);font-size:0.85rem;">No history yet. Analyze a resume to start tracking your scores.</p>`;
+      return;
+    }
+    el.innerHTML = history.map((h, i) => `
+      <div class="history-item">
+        <div class="history-score">${h.score}</div>
+        <div class="history-info">
+          <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">Scan #${history.length - i}</div>
+          <div class="history-date">${h.date} · ${h.industry}</div>
+          <div class="history-grade" style="color:${h.score >= 85 ? 'var(--success)' : h.score >= 70 ? 'var(--accent)' : h.score >= 55 ? 'var(--warning)' : 'var(--danger)'};">${h.grade}</div>
+        </div>
+        <div>
+          <div class="history-bar"><div class="history-bar-fill" style="width:${h.score}%"></div></div>
+          <div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;text-align:right;">${h.score}%</div>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    el.innerHTML = `<p style="color:var(--text-muted);font-size:0.85rem;">History unavailable.</p>`;
+  }
+}
+
+function clearHistory() {
+  try {
+    localStorage.removeItem(HISTORY_KEY);
+    renderScoreHistory();
+    showToast('Score history cleared!', 'info');
+  } catch (e) {}
+}
+
+// ----- INTERVIEW QUESTIONS -----
+function generateInterviewQs() {
+  if (!analysisResults) { showToast('Analyze a resume first!', 'error'); return; }
+  const el = document.getElementById('interviewQuestions');
+  if (!el) return;
+  const questions = window.GeminiAnalyzer.generateInterviewQuestions(analysisResults.skills, analysisResults.detectedIndustry);
+  el.innerHTML = questions.map(q => `
+    <div class="iq-item">
+      <div class="iq-type">${q.type}</div>
+      <div class="iq-q">${q.q}</div>
+    </div>
+  `).join('');
+  showToast('✅ Interview questions generated!', 'success');
+}
+
+// ----- EMAIL SUBJECT LINES -----
+function generateEmailSubjects() {
+  if (!analysisResults) { showToast('Analyze a resume first!', 'error'); return; }
+  const el = document.getElementById('emailSubjects');
+  if (!el) return;
+  const resumeText = currentText || document.getElementById('resumeText').value.trim();
+  const jd = document.getElementById('jobDescription').value.trim();
+  const subjects = window.GeminiAnalyzer.generateEmailSubjects(resumeText, 'Software Engineer', 'the company');
+  el.innerHTML = subjects.map(s => `
+    <div class="email-subject-item" onclick="copyText('${s.replace(/'/g, "\\'")}')">
+      <span>📧</span>
+      <span style="flex:1;">${s}</span>
+      <span class="copy-btn">Click to copy</span>
+    </div>
+  `).join('');
+  showToast('✅ Email subjects generated! Click any to copy.', 'success');
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('📋 Copied to clipboard!', 'success'))
+    .catch(() => showToast('Clipboard write failed.', 'error'));
+}
+
+// ----- ATS TEMPLATE DOWNLOAD -----
+function downloadATSTemplate() {
+  const { jsPDF } = window.jspdf || {};
+  if (!jsPDF) { showToast('PDF library not loaded. Please refresh.', 'error'); return; }
+
+  const doc = new jsPDF('p', 'mm', 'a4');
+  const margin = 20;
+  const pageW = doc.internal.pageSize.getWidth();
+  let y = 25;
+
+  doc.setFontSize(20); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 41, 59);
+  doc.text('YOUR FULL NAME', margin, y); y += 8;
+
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139);
+  doc.text('email@example.com | (555) 123-4567 | linkedin.com/in/yourname | github.com/yourname', margin, y); y += 12;
+
+  doc.setDrawColor(99, 102, 241); doc.setLineWidth(0.8); doc.line(margin, y, pageW - margin, y); y += 8;
+
+  const sections = [
+    { title: 'PROFESSIONAL SUMMARY', body: 'Results-driven [Your Role] with X years of experience in [Industry/Domain]. Proven track record of [Key Achievement]. Passionate about [Your Value Proposition].' },
+    { title: 'WORK EXPERIENCE', body: 'Job Title | Company Name | City, State | MM/YYYY – MM/YYYY\n• [Action verb] [task/project] resulting in [measurable outcome, e.g., 30% efficiency improvement]\n• [Action verb] [task/project] that [impact with metrics]\n• Led [initiative] serving [scale, e.g., 50K+ users] with [result]\n\nJob Title | Previous Company | City | MM/YYYY – MM/YYYY\n• [Action verb] [achievement with numbers]\n• [Action verb] [cross-functional collaboration example]' },
+    { title: 'EDUCATION', body: 'Bachelor of Science, Computer Science | University Name | 2020\nGPA: X.X/4.0 | Relevant Coursework: Data Structures, Algorithms, Databases' },
+    { title: 'TECHNICAL SKILLS', body: 'Languages: Python, JavaScript, TypeScript, SQL\nFrameworks: React, Node.js, Django, FastAPI\nCloud & DevOps: AWS, Docker, Kubernetes, GitHub Actions\nDatabases: PostgreSQL, MongoDB, Redis\nTools: Git, Jira, Figma, Postman' },
+    { title: 'CERTIFICATIONS', body: 'AWS Certified Developer – Associate (2023)\nGoogle Cloud Professional Data Engineer (2022)' },
+    { title: 'PROJECTS', body: 'Project Name | github.com/yourname/project\n• Built [what] using [technologies], achieving [result]\n• Open-source: [X] stars, [Y] contributors' }
+  ];
+
+  sections.forEach(s => {
+    if (y > 250) { doc.addPage(); y = 20; }
+    doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(51, 65, 85);
+    doc.text(s.title, margin, y); y += 2;
+    doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.3); doc.line(margin, y, pageW - margin, y); y += 5;
+
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(71, 85, 105);
+    const lines = doc.splitTextToSize(s.body, pageW - margin * 2);
+    lines.forEach(line => {
+      if (y > 275) { doc.addPage(); y = 20; }
+      doc.text(line, margin, y); y += 4.5;
+    });
+    y += 5;
+  });
+
+  doc.save('ATS_Resume_Template.pdf');
+  showToast('✅ ATS Template downloaded!', 'success');
+}
+
+// ----- BEFORE/AFTER COMPARISON -----
+let originalResumeSnapshot = '';
+function showComparison() {
+  const el = document.getElementById('comparisonView');
+  if (!el) return;
+  const original = originalResumeSnapshot || currentText || document.getElementById('resumeText').value.trim();
+  const enhanced = document.getElementById('enhancerTextEditor')?.value || '';
+  if (!enhanced || enhanced === original) {
+    showToast('Enhance your resume first in the Enhancer tab!', 'warning');
+    return;
+  }
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="comparison-grid">
+      <div>
+        <div class="comparison-label before">Before (Original)</div>
+        <div class="comparison-pane before">${original}</div>
+      </div>
+      <div>
+        <div class="comparison-label after">After (Enhanced)</div>
+        <div class="comparison-pane after">${enhanced}</div>
+      </div>
+    </div>
+  `;
+  showToast('📊 Before/After comparison ready!', 'success');
+}
+
+// ----- DARK MODE TOGGLE -----
+function toggleDarkMode() {
+  document.body.classList.toggle('light-mode');
+  const isDark = !document.body.classList.contains('light-mode');
+  document.getElementById('darkIcon').style.display = isDark ? 'block' : 'none';
+  document.getElementById('lightIcon').style.display = isDark ? 'none' : 'block';
+  try { localStorage.setItem('resumeai_theme', isDark ? 'dark' : 'light'); } catch (e) {}
+}
+
+// Restore theme on page load
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const saved = localStorage.getItem('resumeai_theme');
+    if (saved === 'light') {
+      document.body.classList.add('light-mode');
+      document.getElementById('darkIcon').style.display = 'none';
+      document.getElementById('lightIcon').style.display = 'block';
+    }
+  } catch (e) {}
+});
+

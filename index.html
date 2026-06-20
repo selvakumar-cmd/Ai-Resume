@@ -35,7 +35,15 @@
       <a href="#analyzer" class="nav-link">Analyze</a>
       <a href="#how-it-works" class="nav-link">How It Works</a>
     </div>
-    <button class="btn-primary nav-cta" onclick="scrollToAnalyzer()">Get Started Free</button>
+        <button class="btn-icon-toggle" id="darkModeToggle" onclick="toggleDarkMode()" title="Toggle Dark/Light Mode">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="darkIcon">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+          </svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="lightIcon" style="display:none">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+        <button class="btn-primary nav-cta" onclick="scrollToAnalyzer()">Get Started Free</button>
   </nav>
 
   <!-- ===== HERO SECTION ===== -->
@@ -363,16 +371,14 @@
         </div>
 
         <!-- Results Tabs Selector -->
-        <div class="tabs" style="margin-bottom: 1.5rem; padding: 0.25rem;">
-          <button class="tab active" id="tabReport" onclick="switchResultTab('report')">
-            📊 Scan Report
-          </button>
-          <button class="tab" id="tabEnhancer" onclick="switchResultTab('enhancer')">
-            ✏️ AI Enhancer
-          </button>
-          <button class="tab" id="tabCoverLetter" onclick="switchResultTab('coverLetter')">
-            ✉️ Cover Letter
-          </button>
+        <div class="tabs result-tabs-wrap" style="margin-bottom: 1.5rem; padding: 0.25rem; flex-wrap: wrap; gap: 0.25rem;">
+          <button class="tab active" id="tabReport" onclick="switchResultTab('report')">📊 Scan Report</button>
+          <button class="tab" id="tabDeepAnalysis" onclick="switchResultTab('deepAnalysis')">🔬 Deep Analysis</button>
+          <button class="tab" id="tabEnhancer" onclick="switchResultTab('enhancer')">✏️ Enhancer</button>
+          <button class="tab" id="tabCoverLetter" onclick="switchResultTab('coverLetter')">✉️ Cover Letter</button>
+          <button class="tab" id="tabTools" onclick="switchResultTab('tools')">🛠️ AI Tools</button>
+          <button class="tab" id="tabLinkedIn" onclick="switchResultTab('linkedin')">🔗 LinkedIn</button>
+          <button class="tab" id="tabHistory" onclick="switchResultTab('history')">📈 History</button>
         </div>
 
         <!-- Report Tab Content -->
@@ -485,6 +491,131 @@
             </svg>
             Download Full Report
           </button>
+        </div>
+
+        <!-- ===== DEEP ANALYSIS TAB ===== -->
+        <div id="deepAnalysisTabContent" class="result-tab-content" style="display:none;">
+
+          <!-- Salary Estimate -->
+          <div class="result-section salary-card">
+            <div class="rs-header">
+              <h4>💰 Salary Range Estimate</h4>
+            </div>
+            <div id="salaryEstimate" class="salary-body">
+              <div class="salary-range" id="salaryRange">—</div>
+              <div class="salary-meta" id="salaryMeta"></div>
+              <div class="salary-tier" id="salaryTier"></div>
+            </div>
+          </div>
+
+          <!-- Resume Length -->
+          <div class="result-section">
+            <div class="rs-header"><h4>📄 Resume Length Analysis</h4></div>
+            <div id="lengthAnalysis"></div>
+          </div>
+
+          <!-- Grammar Check -->
+          <div class="result-section">
+            <div class="rs-header">
+              <h4>📝 Grammar & Style Check</h4>
+              <span class="badge-score" id="grammarScoreBadge"></span>
+            </div>
+            <div id="grammarIssues"></div>
+          </div>
+
+          <!-- Readability -->
+          <div class="result-section">
+            <div class="rs-header">
+              <h4>📖 Readability Score</h4>
+              <span class="badge-score" id="readabilityBadge"></span>
+            </div>
+            <div id="readabilityDetails"></div>
+          </div>
+
+          <!-- Bullet Analyzer -->
+          <div class="result-section">
+            <div class="rs-header">
+              <h4>🎯 Bullet Point Quality Analyzer</h4>
+              <span class="badge-score" id="bulletScoreBadge"></span>
+            </div>
+            <div id="bulletAnalysis"></div>
+          </div>
+
+          <!-- Duplicate Words -->
+          <div class="result-section">
+            <div class="rs-header"><h4>🔁 Overused Words Detector</h4></div>
+            <div id="duplicateWords"></div>
+          </div>
+
+          <!-- Role Matcher -->
+          <div class="result-section">
+            <div class="rs-header"><h4>🏷️ Best-Fit Job Roles</h4></div>
+            <div id="roleMatches"></div>
+          </div>
+
+        </div>
+
+        <!-- ===== TOOLS TAB ===== -->
+        <div id="toolsTabContent" class="result-tab-content" style="display:none;">
+
+          <!-- Interview Questions -->
+          <div class="result-section">
+            <div class="rs-header">
+              <h4>🎤 Interview Questions Generator</h4>
+              <button class="btn-text" onclick="generateInterviewQs()">Generate</button>
+            </div>
+            <div id="interviewQuestions"><p style="color:var(--text-muted);font-size:0.85rem;">Click "Generate" to create personalized interview questions based on your resume skills.</p></div>
+          </div>
+
+          <!-- Email Subject Lines -->
+          <div class="result-section">
+            <div class="rs-header">
+              <h4>📧 Email Subject Line Generator</h4>
+              <button class="btn-text" onclick="generateEmailSubjects()">Generate</button>
+            </div>
+            <div id="emailSubjects"><p style="color:var(--text-muted);font-size:0.85rem;">Click "Generate" to get 5 professional email subject lines for job applications.</p></div>
+          </div>
+
+          <!-- ATS Template Download -->
+          <div class="result-section">
+            <div class="rs-header"><h4>📋 ATS-Friendly Resume Template</h4></div>
+            <div style="padding: 0.75rem 0;">
+              <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">Download a clean, ATS-optimized resume template. No fancy graphics — just what ATS systems love.</p>
+              <button class="btn-primary" style="border-radius:50px;font-size:0.85rem;padding:0.6rem 1.5rem;" onclick="downloadATSTemplate()">⬇️ Download ATS Template (PDF)</button>
+            </div>
+          </div>
+
+          <!-- Before/After Comparison -->
+          <div class="result-section">
+            <div class="rs-header"><h4>🔀 Before / After Comparison</h4></div>
+            <div style="padding: 0.75rem 0;">
+              <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">Enhance your resume in the Enhancer tab first, then compare the original vs improved version side-by-side.</p>
+              <button class="btn-primary" style="border-radius:50px;font-size:0.85rem;padding:0.6rem 1.5rem;" onclick="showComparison()">🔀 Show Comparison</button>
+            </div>
+            <div id="comparisonView" style="display:none;margin-top:1rem;"></div>
+          </div>
+
+        </div>
+
+        <!-- ===== LINKEDIN TAB ===== -->
+        <div id="linkedinTabContent" class="result-tab-content" style="display:none;">
+          <div class="result-section">
+            <div class="rs-header"><h4>🔗 LinkedIn Profile Gap Analyzer</h4></div>
+            <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6;">Check which LinkedIn profile elements you may be missing. Recruiters search LinkedIn 95% of the time — make sure your profile is complete.</p>
+            <div id="linkedInChecklist"></div>
+          </div>
+        </div>
+
+        <!-- ===== HISTORY TAB ===== -->
+        <div id="historyTabContent" class="result-tab-content" style="display:none;">
+          <div class="result-section">
+            <div class="rs-header">
+              <h4>📈 Score History (Last 10 Scans)</h4>
+              <button class="btn-text" onclick="clearHistory()" style="color:var(--danger);font-size:0.78rem;">Clear All</button>
+            </div>
+            <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;">Track your progress — every time you analyze a resume, the score is saved here.</p>
+            <div id="scoreHistory"></div>
+          </div>
         </div>
 
         <!-- Enhancer Tab Content -->
@@ -655,7 +786,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="html2pdf.bundle.min.js"></script>
   <script src="analyzer.js"></script>
-  <script src="ats-enhanced.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
